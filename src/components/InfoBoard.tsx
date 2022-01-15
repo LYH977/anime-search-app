@@ -4,17 +4,21 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 
-function InfoBoard({ infoNo, infoText }: any) {
+function InfoBoard({ infoNo, infoText, color }: any) {
   return (
     <Box
-      sx={{ bgcolor: 'red' }}
+      sx={{ bgcolor: `light${color}`, p: 3, borderRadius: 2 }}
       display='flex'
       justifyContent='center'
       alignItems='center'
       flexDirection='column'
     >
-      <Typography>{infoNo}</Typography>
-      <Typography>{infoText}</Typography>
+      <Typography variant='h5' component='div' color={color}>
+        {infoNo}
+      </Typography>
+      <Typography variant='overline' display='block' color={color}>
+        {infoText}
+      </Typography>
     </Box>
   );
 }

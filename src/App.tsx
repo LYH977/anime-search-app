@@ -18,7 +18,7 @@ function App() {
         justifyContent='center'
         alignItems='center'
       > */}
-      <Container sx={{ bgcolor: 'lightgrey', p: 5, flexGrow: 1 }}>
+      <Container sx={{ p: 5, flexGrow: 1 }}>
         <Routes>
           <Route index element={<Search />} />
           <Route path={`${ROUTES.DETAIL}/:id`} element={<Detail />} />

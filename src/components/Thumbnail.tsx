@@ -1,5 +1,4 @@
 import React from 'react';
-import { AnimeItemProps } from '../pages/Search';
 
 //MUI
 import Card from '@mui/material/Card';
@@ -10,8 +9,8 @@ import { CardActionArea } from '@mui/material';
 
 function Thumbnail({ item, gotoDetail }: any) {
   return (
-    <Card onClick={gotoDetail}>
-      <CardActionArea sx={{ bgcolor: 'red' }}>
+    <Card onClick={gotoDetail} sx={{ boxShadow: 3 }}>
+      <CardActionArea>
         <CardMedia
           component='img'
           image={item.image_url}
@@ -19,9 +18,7 @@ function Thumbnail({ item, gotoDetail }: any) {
           height='400'
         />
         <CardContent sx={{ height: 50 }}>
-          <Typography variant='body2' color='text.secondary'>
-            {item.title}
-          </Typography>
+          <Typography variant='body2'>{item.title}</Typography>
         </CardContent>
       </CardActionArea>
     </Card>

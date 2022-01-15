@@ -11,56 +11,60 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import SearchIcon from '@mui/icons-material/Search';
+import Snackbar from '@mui/material/Snackbar';
+import Slide from '@mui/material/Slide';
+import { IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import CircularProgress from '@mui/material/CircularProgress';
+import { AnimeItemProps, TransitionProps } from '../utils/types';
 
-export type AnimeItemProps = {
-  airing: boolean;
-  end_date: string;
-  episode: number;
-  image_url: string;
-  mal_id: number;
-  members: number;
-  rated: string;
-  score: number;
-  start_date: string;
-  synopsis: string;
-  title: string;
-  type: string;
-  url: string;
-};
+function TransitionDown(props: TransitionProps) {
+  return <Slide {...props} direction='down' />;
+}
 
 function Search() {
   const [animeName, setAnimeName] = useState<string | null>('');
   const [animeList, setAnimeList] = useState<AnimeItemProps[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [error, setError] = useState<string | null>();
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState<boolean>(false);
   const [lastPage, setLastPage] = useState<number>(1);
+  const [isSearching, setisSearching] = useState(false);
+  const [isPaginating, setisPaginating] = useState(false);
 
   const [debouncedValue] = useDebounce(animeName, 500);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchAnimeList = async () => {
-      if (debouncedValue)
-        try {
-          const result = await axios(
-            `https://api.jikan.moe/v3/search/anime?q=${debouncedValue}&page=${currentPage}`
-          );
-          setAnimeList(result?.data?.results);
-          setLastPage(result?.data?.last_page);
-          console.log(result);
-        } catch (e) {
-          console.log({ e });
-        }
-    };
-    fetchAnimeList();
-  }, [debouncedValue, currentPage]);
+  function closeSnackBar() {
+    setIsSnackbarOpen(false);
+  }
 
-  function updateSearchValue(
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) {
-    setAnimeName(event.target.value);
+  useEffect(() => {
+    fetchAnimeList(setisPaginating, false);
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchAnimeList(setisSearching, true);
+  }, [debouncedValue]);
+
+  async function fetchAnimeList(setLoading: Function, isPageReset: boolean) {
+    if (debouncedValue) {
+      setLoading(true);
+      try {
+        const result = await axios(
+          `https://api.jikan.moe/v3/search/anime?q=${debouncedValue}&page=${
+            isPageReset ? 1 : currentPage
+          }`
+        );
+        setAnimeList(result?.data?.results);
+        setLastPage(result?.data?.last_page);
+        if (isPageReset) setCurrentPage(1);
+      } catch (e) {
+        if (isPageReset) setIsSnackbarOpen(true);
+        console.log({ e });
+      }
+      setLoading(false);
+    }
   }
 
   return (
@@ -70,6 +74,24 @@ function Search() {
       justifyContent='center'
       alignItems='center'
     >
+      <Snackbar
+        open={isSnackbarOpen}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        TransitionComponent={TransitionDown}
+        autoHideDuration={5000}
+        onClose={closeSnackBar}
+        action={
+          <IconButton
+            size='small'
+            aria-label='close'
+            color='inherit'
+            onClick={closeSnackBar}
+          >
+            <CloseIcon fontSize='small' />
+          </IconButton>
+        }
+        message={`"${debouncedValue}" is not found. Please try other anime name.`}
+      />
       <TextField
         sx={{ width: '80%', mb: 5 }}
         id='outlined-basic'
@@ -80,25 +102,36 @@ function Search() {
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
-              <SearchIcon />
+              {isSearching ? (
+                <CircularProgress size={25} thickness={5} />
+              ) : (
+                <SearchIcon />
+              )}
             </InputAdornment>
           ),
         }}
       />
-      <Grid container spacing={3}>
-        {animeList.map((anime) => (
-          <Grid item key={anime.mal_id} xs={3}>
-            <Thumbnail
-              item={anime}
-              gotoDetail={() => {
-                navigate(`${ROUTES.DETAIL}/${anime.mal_id}`);
-              }}
-            />
-          </Grid>
-        ))}
-      </Grid>
+
+      {isPaginating ? (
+        <CircularProgress />
+      ) : (
+        <Grid container spacing={3}>
+          {animeList.map((anime) => (
+            <Grid item key={anime.mal_id} xs={3}>
+              <Thumbnail
+                item={anime}
+                gotoDetail={() => {
+                  navigate(`${ROUTES.DETAIL}/${anime.mal_id}`);
+                }}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
       {animeList.length > 0 && (
         <Pagination
+          sx={{ m: 5 }}
           count={lastPage}
           color='primary'
           page={currentPage}

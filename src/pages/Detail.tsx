@@ -8,10 +8,15 @@ import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InfoBoard from '../components/InfoBoard';
+
+import Skeleton from '@mui/material/Skeleton';
+import { IMAGE_PLACEHOLDER, INFO } from '../utils/constant';
+import { formatInfoBoardText } from '../utils/formatters';
+
 function Detail() {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  console.log('detail');
   const [episodes, setEpisodes] = useState<number>();
   const [genres, setGenres] = useState<string[]>([]);
   const [imageURL, setImageURL] = useState<string>();
@@ -21,9 +26,35 @@ function Detail() {
   const [synopsis, setSynopsis] = useState<string>();
   const [title, setTitle] = useState<string>();
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const infoBoardList = [
+    {
+      infoNo: formatInfoBoardText(episodes, INFO.EPISODES),
+      infoText: INFO.EPISODES,
+      color: 'blue',
+    },
+    {
+      infoNo: formatInfoBoardText(popularity, INFO.POPULARITY),
+      infoText: INFO.POPULARITY,
+      color: 'blue',
+    },
+    {
+      infoNo: formatInfoBoardText(score, INFO.SCORE),
+      infoText: INFO.SCORE,
+      color: 'blue',
+    },
+    {
+      infoNo: formatInfoBoardText(rank, INFO.RANK),
+      infoText: INFO.RANK,
+      color: 'blue',
+    },
+  ];
+
   useEffect(() => {
     const fetchANimeDetails = async () => {
       try {
+        setIsLoading(true);
         const result = await axios(`https://api.jikan.moe/v3/anime/${id}`);
         console.log({ result });
         setEpisodes(result?.data?.episodes);
@@ -41,6 +72,7 @@ function Detail() {
       } catch (e) {
         console.log({ e });
       }
+      setIsLoading(false);
     };
     fetchANimeDetails();
   }, []);
@@ -49,36 +81,67 @@ function Detail() {
     <Box>
       <Grid container spacing={2}>
         <Grid item>
-          <ButtonBase>
-            <Img src={imageURL} alt={title} />
-          </ButtonBase>
+          {isLoading ? (
+            <Skeleton
+              variant='rectangular'
+              width={200}
+              height={400}
+              animation='wave'
+            />
+          ) : (
+            <ButtonBase>
+              <Img src={imageURL ?? IMAGE_PLACEHOLDER} alt={title} />
+            </ButtonBase>
+          )}
         </Grid>
 
-        <Grid item container direction='column' xs>
+        <Grid item container direction='column' xs spacing={2}>
           <Grid item xs>
-            <Typography>{title}</Typography>
+            {isLoading ? (
+              <Skeleton variant='text' animation='wave' width='40%' />
+            ) : (
+              <Typography>{title ?? '-'}</Typography>
+            )}
           </Grid>
-          <Grid item container>
+          <Grid item container spacing={2}>
             {genres.map((gName, index) => (
-              <Chip label={gName} key={index} onClick={() => null} />
+              <Grid item>
+                <Chip label={gName} key={index} onClick={() => null} />
+              </Grid>
             ))}
           </Grid>
           <Grid item xs>
-            <Typography>{synopsis}</Typography>
+            {isLoading ? (
+              <>
+                <Skeleton variant='text' animation='wave' />
+                <Skeleton variant='text' animation='wave' />
+                <Skeleton variant='text' animation='wave' />
+                <Skeleton variant='text' animation='wave' />
+                <Skeleton variant='text' animation='wave' />
+              </>
+            ) : (
+              <Typography>{synopsis ?? 'No sypnosis'}</Typography>
+            )}
           </Grid>
           <Grid container item xs spacing={2}>
-            <Grid item xs>
-              <InfoBoard infoNo={episodes} infoText='Episodes' />
-            </Grid>
-            <Grid item xs>
-              <InfoBoard infoNo={popularity} infoText='Popularity' />
-            </Grid>
-            <Grid item xs>
-              <InfoBoard infoNo={rank} infoText='Rank' />
-            </Grid>
-            <Grid item xs>
-              <InfoBoard infoNo={score} infoText='Score' />
-            </Grid>
+            {infoBoardList.map(({ infoNo, infoText, color }, index) => (
+              <Grid item xs key={index}>
+                {isLoading ? (
+                  <Skeleton
+                    variant='rectangular'
+                    width={150}
+                    height={75}
+                    animation='wave'
+                  />
+                ) : (
+                  <InfoBoard
+                    infoNo={infoNo}
+                    infoText={infoText}
+                    color={color}
+                  />
+                )}
+              </Grid>
+            ))}
           </Grid>
         </Grid>
       </Grid>
