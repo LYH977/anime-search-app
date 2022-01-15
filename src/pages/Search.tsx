@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import debounce from 'lodash.debounce';
+import { useDebounce } from 'use-debounce';
+import Thumbnail from '../components/Thumbnail';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../utils/constant';
 
 //MUI
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 import SearchIcon from '@mui/icons-material/Search';
-import Thumbnail from '../components/Thumbnail';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../utils/constant';
 
 export type AnimeItemProps = {
   airing: boolean;
@@ -30,37 +31,37 @@ export type AnimeItemProps = {
 };
 
 function Search() {
-  const [animeName, setAnimeName] = useState<string | null>('naruto');
+  const [animeName, setAnimeName] = useState<string | null>('');
   const [animeList, setAnimeList] = useState<AnimeItemProps[]>([]);
-  const [currentPage, setcurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [error, setError] = useState<string | null>();
   const [lastPage, setLastPage] = useState<number>(1);
 
+  const [debouncedValue] = useDebounce(animeName, 500);
   const navigate = useNavigate();
 
-  const fetchAnimeList = async (callback: Function) => {
-    try {
-      const result = await axios(
-        `https://api.jikan.moe/v3/search/anime?q=${animeName}&page=${currentPage}`
-      );
-      callback(result);
-    } catch (e) {
-      console.log(e);
-      callback(null);
-    }
-  };
-  const debouncedFetchData = debounce((callback) => {
-    fetchAnimeList(callback);
-  }, 500);
-
   useEffect(() => {
-    debouncedFetchData((result: any) => {
-      if (result) {
-        setAnimeList(result?.data?.results);
-        setLastPage(result?.data?.last_page);
-      }
-    });
-  }, [animeName]);
+    const fetchAnimeList = async () => {
+      if (debouncedValue)
+        try {
+          const result = await axios(
+            `https://api.jikan.moe/v3/search/anime?q=${debouncedValue}&page=${currentPage}`
+          );
+          setAnimeList(result?.data?.results);
+          setLastPage(result?.data?.last_page);
+          console.log(result);
+        } catch (e) {
+          console.log({ e });
+        }
+    };
+    fetchAnimeList();
+  }, [debouncedValue, currentPage]);
+
+  function updateSearchValue(
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) {
+    setAnimeName(event.target.value);
+  }
 
   return (
     <Box
@@ -70,7 +71,7 @@ function Search() {
       alignItems='center'
     >
       <TextField
-        sx={{ width: '80%', m: 5 }}
+        sx={{ width: '80%', mb: 5 }}
         id='outlined-basic'
         label='Search'
         variant='outlined'
@@ -84,7 +85,6 @@ function Search() {
           ),
         }}
       />
-      {/* <Container> */}
       <Grid container spacing={3}>
         {animeList.map((anime) => (
           <Grid item key={anime.mal_id} xs={3}>
@@ -97,7 +97,16 @@ function Search() {
           </Grid>
         ))}
       </Grid>
-      {/* </Container> */}
+      {animeList.length > 0 && (
+        <Pagination
+          count={lastPage}
+          color='primary'
+          page={currentPage}
+          onChange={(e, page) => {
+            setCurrentPage(page);
+          }}
+        />
+      )}
     </Box>
   );
 }
