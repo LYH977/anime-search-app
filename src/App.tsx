@@ -1,25 +1,32 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Search from './pages/Search';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Detail from './pages/Detail';
+import Navbar from './components/Navbar';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+
+import { ROUTES } from './utils/constant';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Navbar />
+      {/* <Box
+        sx={{ bgcolor: 'lightgrey', p: 5, flexGrow: 1 }}
+        display='flex'
+        justifyContent='center'
+        alignItems='center'
+      > */}
+      <Container sx={{ bgcolor: 'lightgrey', p: 5, flexGrow: 1 }}>
+        <Routes>
+          <Route index element={<Search />} />
+          <Route path={`${ROUTES.DETAIL}/:id`} element={<Detail />} />
+          <Route path='*' element={<Navigate to={ROUTES.SEARCH} />} />
+        </Routes>
+      </Container>
+      {/* </Box> */}
+    </BrowserRouter>
   );
 }
 
