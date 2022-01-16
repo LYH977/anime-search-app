@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { getAnimeDetail } from '../../utils/api';
 import { INFO } from '../../utils/constant';
@@ -19,31 +18,26 @@ export const useSingleAnime = (id: string | undefined) => {
     {
       infoNo: formatInfoBoardText(episodes, INFO.EPISODES),
       infoText: INFO.EPISODES,
-      color: 'blue',
     },
     {
       infoNo: formatInfoBoardText(popularity, INFO.POPULARITY),
       infoText: INFO.POPULARITY,
-      color: 'blue',
     },
     {
       infoNo: formatInfoBoardText(score, INFO.SCORE),
       infoText: INFO.SCORE,
-      color: 'blue',
     },
     {
       infoNo: formatInfoBoardText(rank, INFO.RANK),
       infoText: INFO.RANK,
-      color: 'blue',
     },
   ];
 
-  useEffect(() => {
-    const fetchANimeDetails = async () => {
-      try {
-        setIsLoading(true);
-        const result = await getAnimeDetail(id as string);
-        console.log({ result });
+  async function fetchAnimeDetails(isSubscribed: boolean) {
+    try {
+      setIsLoading(true);
+      const result = await getAnimeDetail(id as string);
+      if (isSubscribed) {
         setEpisodes(result?.data?.episodes);
         setGenres(
           result?.data?.genres?.map(
@@ -56,20 +50,27 @@ export const useSingleAnime = (id: string | undefined) => {
         setScore(result?.data?.score);
         setSynopsis(result?.data?.synopsis);
         setTitle(result?.data?.title);
-      } catch (e) {
-        console.log({ e });
       }
-      setIsLoading(false);
+    } catch (e) {
+      console.log({ e });
+    }
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    let isSubscribed = true;
+    fetchAnimeDetails(isSubscribed);
+    return () => {
+      isSubscribed = false;
     };
-    fetchANimeDetails();
   }, []);
 
   return {
     genres,
     imageURL,
+    infoBoardList,
+    isLoading,
     synopsis,
     title,
-    isLoading,
-    infoBoardList,
   };
 };

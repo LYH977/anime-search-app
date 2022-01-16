@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import Thumbnail from '../../components/Thumbnail';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../utils/constant';
 import { AnimeItemProps, TransitionProps } from '../../utils/types';
+import { usePagination } from './usePagination';
+import { useSearchBar } from './useSearchBar';
 
 //MUI
 import TextField from '@mui/material/TextField';
@@ -15,10 +16,9 @@ import Pagination from '@mui/material/Pagination';
 import SearchIcon from '@mui/icons-material/Search';
 import Snackbar from '@mui/material/Snackbar';
 import Slide from '@mui/material/Slide';
-import { IconButton } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useAnimeList } from './useAnimeList';
 
 function TransitionDown(props: TransitionProps) {
   return <Slide {...props} direction='down' />;
@@ -26,19 +26,26 @@ function TransitionDown(props: TransitionProps) {
 
 function SearchPage() {
   const navigate = useNavigate();
+  const [animeName, setAnimeName] = useState<string>('');
+  const [animeList, setAnimeList] = useState<AnimeItemProps[]>([]);
+  const [debouncedValue] = useDebounce(animeName, 500);
   const {
-    isSnackbarOpen,
-    isSearching,
-    isPaginating,
-    closeSnackBar,
-    debouncedValue,
-    animeList,
-    animeName,
-    queryAnime,
-    lastPage,
     currentPage,
+    isPaginating,
+    lastPage,
+    setLastPage,
+    setCurrentPage,
     updatePage,
-  } = useAnimeList();
+  } = usePagination(debouncedValue, setAnimeList);
+
+  const { closeSnackBar, dismissSnackBar, isSearching, isSnackbarOpen } =
+    useSearchBar(
+      debouncedValue,
+      setAnimeList,
+      setAnimeName,
+      setCurrentPage,
+      setLastPage
+    );
 
   return (
     <Box
@@ -71,7 +78,7 @@ function SearchPage() {
         label='Search'
         variant='outlined'
         value={animeName}
-        onChange={queryAnime}
+        onChange={dismissSnackBar}
         InputProps={{
           endAdornment: (
             <InputAdornment position='end'>
@@ -85,15 +92,22 @@ function SearchPage() {
         }}
       />
 
+      {animeList.length === 0 && (
+        <Typography variant='overline' display='block' gutterBottom>
+          {' '}
+          --EMPTY--
+        </Typography>
+      )}
+
       {isPaginating ? (
         <CircularProgress />
       ) : (
         <Grid container spacing={3}>
           {animeList.map((anime) => (
-            <Grid item key={anime.mal_id} xs={3}>
+            <Grid item key={anime.mal_id} xs={12} md={6} lg={3}>
               <Thumbnail
                 item={anime}
-                gotoDetail={() => {
+                goToDetail={() => {
                   navigate(`${ROUTES.DETAIL}/${anime.mal_id}`);
                 }}
               />

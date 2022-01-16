@@ -2,20 +2,21 @@ import React from 'react';
 //MUI
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { InfoBoardProps } from '../utils/types';
 
-function InfoBoard({ infoNo, infoText, color }: any) {
+function InfoBoard({ infoNo, infoText }: InfoBoardProps) {
   return (
     <Box
-      sx={{ bgcolor: `light${color}`, p: 3, borderRadius: 2 }}
+      sx={{ bgcolor: `lightblue`, p: 3, borderRadius: 2 }}
       display='flex'
       justifyContent='center'
       alignItems='center'
       flexDirection='column'
     >
-      <Typography variant='h5' component='div' color={color}>
+      <Typography variant='h5' component='div' color='blue'>
         {infoNo}
       </Typography>
-      <Typography variant='overline' display='block' color={color}>
+      <Typography variant='overline' display='block' color='blue'>
         {infoText}
       </Typography>
     </Box>

@@ -1,14 +1,8 @@
 import axios from 'axios';
 
-export const getAnimeList = (
-  debouncedValue: string,
-  currentPage: number,
-  isPageReset: boolean
-) => {
+export const getAnimeList = (debouncedValue: string, page: number) => {
   return axios(
-    `https://api.jikan.moe/v3/search/anime?q=${debouncedValue}&page=${
-      isPageReset ? 1 : currentPage
-    }`
+    `https://api.jikan.moe/v3/search/anime?q=${debouncedValue}&page=${page}`
   );
 };
 

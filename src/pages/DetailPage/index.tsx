@@ -11,10 +11,17 @@ import ButtonBase from '@mui/material/ButtonBase';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Skeleton from '@mui/material/Skeleton';
 
+const Img = styled('img')({
+  margin: 'auto',
+  display: 'block',
+  maxWidth: '100%',
+  maxHeight: '100%',
+});
+
 function DetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { genres, imageURL, synopsis, title, isLoading, infoBoardList } =
+  const { genres, imageURL, infoBoardList, isLoading, synopsis, title } =
     useSingleAnime(id);
 
   return (
@@ -53,18 +60,16 @@ function DetailPage() {
           <Grid item xs>
             {isLoading ? (
               <>
-                <Skeleton variant='text' animation='wave' />
-                <Skeleton variant='text' animation='wave' />
-                <Skeleton variant='text' animation='wave' />
-                <Skeleton variant='text' animation='wave' />
-                <Skeleton variant='text' animation='wave' />
+                {[...Array(5)].map((x, i) => (
+                  <Skeleton variant='text' animation='wave' key={i} />
+                ))}
               </>
             ) : (
               <Typography>{synopsis ?? 'No sypnosis'}</Typography>
             )}
           </Grid>
           <Grid container item xs spacing={2}>
-            {infoBoardList.map(({ infoNo, infoText, color }, index) => (
+            {infoBoardList.map(({ infoNo, infoText }, index) => (
               <Grid item xs key={index}>
                 {isLoading ? (
                   <Skeleton
@@ -74,11 +79,7 @@ function DetailPage() {
                     animation='wave'
                   />
                 ) : (
-                  <InfoBoard
-                    infoNo={infoNo}
-                    infoText={infoText}
-                    color={color}
-                  />
+                  <InfoBoard infoNo={infoNo} infoText={infoText} />
                 )}
               </Grid>
             ))}
@@ -99,10 +100,3 @@ function DetailPage() {
 }
 
 export default DetailPage;
-
-const Img = styled('img')({
-  margin: 'auto',
-  display: 'block',
-  maxWidth: '100%',
-  maxHeight: '100%',
-});

@@ -16,4 +16,14 @@ export type AnimeItemProps = {
   url: string;
 };
 
+export type InfoBoardProps = {
+  infoNo: string;
+  infoText: string;
+};
+
+export type ThumbnaildProps = {
+  item: AnimeItemProps;
+  goToDetail: () => void;
+};
+
 export type TransitionProps = Omit<SlideProps, 'direction'>;
