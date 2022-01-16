@@ -1,8 +1,7 @@
 import React from 'react';
 //MUI
-import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Typography } from '@mui/material';
 
 function InfoBoard({ infoNo, infoText, color }: any) {
   return (

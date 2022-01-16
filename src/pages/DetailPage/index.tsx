@@ -1,81 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import InfoBoard from '../../components/InfoBoard';
+import { IMAGE_PLACEHOLDER } from '../../utils/constant';
+import { useSingleAnime } from './useSingleAnime';
 //MUI
 import Grid from '@mui/material/Grid';
-import { Box, Button, Chip, Paper, Typography } from '@mui/material';
+import { Box, Button, Chip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ButtonBase from '@mui/material/ButtonBase';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import InfoBoard from '../components/InfoBoard';
-
 import Skeleton from '@mui/material/Skeleton';
-import { IMAGE_PLACEHOLDER, INFO } from '../utils/constant';
-import { formatInfoBoardText } from '../utils/formatters';
 
-function Detail() {
+function DetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  console.log('detail');
-  const [episodes, setEpisodes] = useState<number>();
-  const [genres, setGenres] = useState<string[]>([]);
-  const [imageURL, setImageURL] = useState<string>();
-  const [popularity, setPopularity] = useState<number>();
-  const [rank, setRank] = useState<number>();
-  const [score, setScore] = useState<number>();
-  const [synopsis, setSynopsis] = useState<string>();
-  const [title, setTitle] = useState<string>();
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const infoBoardList = [
-    {
-      infoNo: formatInfoBoardText(episodes, INFO.EPISODES),
-      infoText: INFO.EPISODES,
-      color: 'blue',
-    },
-    {
-      infoNo: formatInfoBoardText(popularity, INFO.POPULARITY),
-      infoText: INFO.POPULARITY,
-      color: 'blue',
-    },
-    {
-      infoNo: formatInfoBoardText(score, INFO.SCORE),
-      infoText: INFO.SCORE,
-      color: 'blue',
-    },
-    {
-      infoNo: formatInfoBoardText(rank, INFO.RANK),
-      infoText: INFO.RANK,
-      color: 'blue',
-    },
-  ];
-
-  useEffect(() => {
-    const fetchANimeDetails = async () => {
-      try {
-        setIsLoading(true);
-        const result = await axios(`https://api.jikan.moe/v3/anime/${id}`);
-        console.log({ result });
-        setEpisodes(result?.data?.episodes);
-        setGenres(
-          result?.data?.genres?.map(
-            (g: { [key: string]: string | number }) => g?.name
-          )
-        );
-        setImageURL(result?.data?.image_url);
-        setPopularity(result?.data?.popularity);
-        setRank(result?.data?.rank);
-        setScore(result?.data?.score);
-        setSynopsis(result?.data?.synopsis);
-        setTitle(result?.data?.title);
-      } catch (e) {
-        console.log({ e });
-      }
-      setIsLoading(false);
-    };
-    fetchANimeDetails();
-  }, []);
+  const { genres, imageURL, synopsis, title, isLoading, infoBoardList } =
+    useSingleAnime(id);
 
   return (
     <Box>
@@ -105,7 +45,7 @@ function Detail() {
           </Grid>
           <Grid item container spacing={2}>
             {genres.map((gName, index) => (
-              <Grid item>
+              <Grid item key={index}>
                 <Chip label={gName} key={index} onClick={() => null} />
               </Grid>
             ))}
@@ -158,7 +98,7 @@ function Detail() {
   );
 }
 
-export default Detail;
+export default DetailPage;
 
 const Img = styled('img')({
   margin: 'auto',

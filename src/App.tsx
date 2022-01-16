@@ -1,12 +1,12 @@
 import React from 'react';
-import Search from './pages/Search';
+import SearchPage from './pages/SearchPage';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Detail from './pages/Detail';
 import Navbar from './components/Navbar';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 
 import { ROUTES } from './utils/constant';
+import DetailPage from './pages/DetailPage';
 
 function App() {
   return (
@@ -20,8 +20,8 @@ function App() {
       > */}
       <Container sx={{ p: 5, flexGrow: 1 }}>
         <Routes>
-          <Route index element={<Search />} />
-          <Route path={`${ROUTES.DETAIL}/:id`} element={<Detail />} />
+          <Route index element={<SearchPage />} />
+          <Route path={`${ROUTES.DETAIL}/:id`} element={<DetailPage />} />
           <Route path='*' element={<Navigate to={ROUTES.SEARCH} />} />
         </Routes>
       </Container>
