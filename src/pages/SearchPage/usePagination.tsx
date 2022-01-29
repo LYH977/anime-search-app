@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getAnimeList } from '../../utils/api';
 import { AnimeItemProps } from '../../utils/types';
 
@@ -14,7 +14,6 @@ export const usePagination = (
     const controller = new AbortController();
     fetchAnimeList(controller.signal);
     return () => {
-      console.log('pagination page');
       controller.abort();
     };
   }, [currentPage]);
@@ -32,9 +31,10 @@ export const usePagination = (
     }
   }
 
-  function updatePage(e: React.ChangeEvent<unknown>, page: number) {
-    setCurrentPage(page);
-  }
+  const updatePage = useCallback(
+    (e: React.ChangeEvent<unknown>, page: number) => setCurrentPage(page),
+    []
+  );
 
   return {
     currentPage,

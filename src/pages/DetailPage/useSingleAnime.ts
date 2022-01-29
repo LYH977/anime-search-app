@@ -4,31 +4,33 @@ import { INFO } from '../../utils/constant';
 import { formatInfoBoardText } from '../../utils/formatters';
 
 export const useSingleAnime = (id: string | undefined) => {
-  const [episodes, setEpisodes] = useState<number>();
   const [genres, setGenres] = useState<string[]>([]);
   const [imageURL, setImageURL] = useState<string>();
-  const [popularity, setPopularity] = useState<number>();
-  const [rank, setRank] = useState<number>();
-  const [score, setScore] = useState<number>();
   const [synopsis, setSynopsis] = useState<string>();
   const [title, setTitle] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
+  const [infoBoard, setInfoBoard] = useState<any>({
+    episodes: 0,
+    popularity: 0,
+    score: 0,
+    rank: 0,
+  });
 
   const infoBoardList = [
     {
-      infoNo: formatInfoBoardText(episodes, INFO.EPISODES),
+      infoNo: formatInfoBoardText(infoBoard.episodes, INFO.EPISODES),
       infoText: INFO.EPISODES,
     },
     {
-      infoNo: formatInfoBoardText(popularity, INFO.POPULARITY),
+      infoNo: formatInfoBoardText(infoBoard.popularity, INFO.POPULARITY),
       infoText: INFO.POPULARITY,
     },
     {
-      infoNo: formatInfoBoardText(score, INFO.SCORE),
+      infoNo: formatInfoBoardText(infoBoard.score, INFO.SCORE),
       infoText: INFO.SCORE,
     },
     {
-      infoNo: formatInfoBoardText(rank, INFO.RANK),
+      infoNo: formatInfoBoardText(infoBoard.rank, INFO.RANK),
       infoText: INFO.RANK,
     },
   ];
@@ -37,16 +39,18 @@ export const useSingleAnime = (id: string | undefined) => {
     try {
       setIsLoading(true);
       const result = await getAnimeDetail(id as string, signal);
-      setEpisodes(result?.data?.episodes);
       setGenres(
         result?.data?.genres?.map(
           (g: { [key: string]: string | number }) => g?.name
         )
       );
       setImageURL(result?.data?.image_url);
-      setPopularity(result?.data?.popularity);
-      setRank(result?.data?.rank);
-      setScore(result?.data?.score);
+      setInfoBoard({
+        episodes: result?.data?.episodes,
+        popularity: result?.data?.popularity,
+        score: result?.data?.score,
+        rank: result?.data?.rank,
+      });
       setSynopsis(result?.data?.synopsis);
       setTitle(result?.data?.title);
     } catch (e) {

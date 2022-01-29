@@ -9,10 +9,8 @@ import CardActionArea from '@mui/material/CardActionArea';
 import { ThumbnaildProps } from '../utils/types';
 
 function Thumbnail({ item, goToDetail }: ThumbnaildProps) {
-  console.log('infoboard rerendered');
-
   return (
-    <Card onClick={goToDetail} sx={{ boxShadow: 3 }}>
+    <Card onClick={() => goToDetail(item.mal_id)} sx={{ boxShadow: 3 }}>
       <CardActionArea>
         <CardMedia
           component='img'

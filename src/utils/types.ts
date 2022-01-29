@@ -23,7 +23,7 @@ export type InfoBoardProps = {
 
 export type ThumbnaildProps = {
   item: AnimeItemProps;
-  goToDetail: () => void;
+  goToDetail: (mal_id: number) => void;
 };
 
 export type TransitionProps = Omit<SlideProps, 'direction'>;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import Thumbnail from '../../components/Thumbnail';
 import { useNavigate } from 'react-router-dom';
@@ -24,11 +24,18 @@ function TransitionDown(props: TransitionProps) {
   return <Slide {...props} direction='down' />;
 }
 
+const SingleThumbnail = memo(({ anime, goToDetail }: any) => (
+  <Grid item key={anime.mal_id} xs={12} md={6} lg={3}>
+    <Thumbnail item={anime} goToDetail={goToDetail} />
+  </Grid>
+));
+
 function SearchPage() {
   const navigate = useNavigate();
   const [animeName, setAnimeName] = useState<string>('');
   const [animeList, setAnimeList] = useState<AnimeItemProps[]>([]);
   const [debouncedValue] = useDebounce(animeName, 100);
+
   const {
     currentPage,
     isPaginating,
@@ -47,6 +54,11 @@ function SearchPage() {
       setLastPage
     );
 
+  const goToDetail = useCallback(
+    (mal_id: number) => navigate(`${ROUTES.DETAIL}/${mal_id}`),
+    []
+  );
+
   return (
     <Box
       display='flex'
@@ -54,7 +66,6 @@ function SearchPage() {
       justifyContent='center'
       alignItems='center'
     >
-      {console.log(1234)}
       <Snackbar
         open={isSnackbarOpen}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -95,7 +106,6 @@ function SearchPage() {
 
       {animeList.length === 0 && (
         <Typography variant='overline' display='block' gutterBottom>
-          {' '}
           --EMPTY--
         </Typography>
       )}
@@ -105,14 +115,11 @@ function SearchPage() {
       ) : (
         <Grid container spacing={3}>
           {animeList.map((anime) => (
-            <Grid item key={anime.mal_id} xs={12} md={6} lg={3}>
-              <Thumbnail
-                item={anime}
-                goToDetail={() => {
-                  navigate(`${ROUTES.DETAIL}/${anime.mal_id}`);
-                }}
-              />
-            </Grid>
+            <SingleThumbnail
+              key={anime.mal_id}
+              anime={anime}
+              goToDetail={goToDetail}
+            />
           ))}
         </Grid>
       )}

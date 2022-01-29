@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getAnimeList } from '../../utils/api';
 import { AnimeItemProps } from '../../utils/types';
 
@@ -38,16 +38,15 @@ export const useSearchBar = (
     }
   }
 
-  function dismissSnackBar(
-    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) {
-    setAnimeName(e.target.value);
-    setIsSnackbarOpen(false);
-  }
+  const dismissSnackBar = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      setAnimeName(e.target.value);
+      setIsSnackbarOpen(false);
+    },
+    []
+  );
 
-  function closeSnackBar() {
-    setIsSnackbarOpen(false);
-  }
+  const closeSnackBar = useCallback(() => setIsSnackbarOpen(false), []);
 
   return {
     closeSnackBar,
