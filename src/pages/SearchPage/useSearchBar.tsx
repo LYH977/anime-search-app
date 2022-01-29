@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { getAnimeList } from '../../utils/api';
 import { AnimeItemProps } from '../../utils/types';
@@ -14,25 +15,23 @@ export const useSearchBar = (
 
   useEffect(() => {
     setIsSnackbarOpen(false);
-    let isSubscribed = true;
-    fetchAnimeList(isSubscribed);
-    return () => {
-      isSubscribed = false;
-    };
+    const controller = new AbortController();
+    fetchAnimeList(controller.signal);
+    return () => controller.abort();
   }, [debouncedValue]);
 
-  async function fetchAnimeList(isSubscribed: boolean) {
+  async function fetchAnimeList(signal: AbortSignal) {
     if (debouncedValue) {
       setIsSearching(true);
       try {
-        const result = await getAnimeList(debouncedValue, 1);
-        if (isSubscribed) {
-          setAnimeList(result?.data?.results);
-          setLastPage(result?.data?.last_page);
-          setCurrentPage(1);
-        }
+        const result = await getAnimeList(debouncedValue, 1, signal);
+        setAnimeList(result?.data?.results);
+        setLastPage(result?.data?.last_page);
+        setCurrentPage(1);
       } catch (e) {
-        setIsSnackbarOpen(true);
+        if (!axios.isCancel(e)) {
+          setIsSnackbarOpen(true);
+        }
         console.log({ e });
       }
       setIsSearching(false);

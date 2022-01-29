@@ -9,17 +9,22 @@ export const usePagination = (
   const [isPaginating, setisPaginating] = useState(false);
   const [lastPage, setLastPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
   useEffect(() => {
-    let isSubscribed = true;
-    fetchAnimeList(isSubscribed);
+    const controller = new AbortController();
+    fetchAnimeList(controller.signal);
+    return () => {
+      console.log('pagination page');
+      controller.abort();
+    };
   }, [currentPage]);
 
-  async function fetchAnimeList(isSubscribed: boolean) {
+  async function fetchAnimeList(signal: AbortSignal) {
     if (debouncedValue) {
       setisPaginating(true);
       try {
-        const result = await getAnimeList(debouncedValue, currentPage);
-        if (isSubscribed) setAnimeList(result?.data?.results);
+        const result = await getAnimeList(debouncedValue, currentPage, signal);
+        setAnimeList(result?.data?.results);
       } catch (e) {
         console.log({ e });
       }

@@ -33,24 +33,22 @@ export const useSingleAnime = (id: string | undefined) => {
     },
   ];
 
-  async function fetchAnimeDetails(isSubscribed: boolean) {
+  async function fetchAnimeDetails(signal: AbortSignal) {
     try {
       setIsLoading(true);
-      const result = await getAnimeDetail(id as string);
-      if (isSubscribed) {
-        setEpisodes(result?.data?.episodes);
-        setGenres(
-          result?.data?.genres?.map(
-            (g: { [key: string]: string | number }) => g?.name
-          )
-        );
-        setImageURL(result?.data?.image_url);
-        setPopularity(result?.data?.popularity);
-        setRank(result?.data?.rank);
-        setScore(result?.data?.score);
-        setSynopsis(result?.data?.synopsis);
-        setTitle(result?.data?.title);
-      }
+      const result = await getAnimeDetail(id as string, signal);
+      setEpisodes(result?.data?.episodes);
+      setGenres(
+        result?.data?.genres?.map(
+          (g: { [key: string]: string | number }) => g?.name
+        )
+      );
+      setImageURL(result?.data?.image_url);
+      setPopularity(result?.data?.popularity);
+      setRank(result?.data?.rank);
+      setScore(result?.data?.score);
+      setSynopsis(result?.data?.synopsis);
+      setTitle(result?.data?.title);
     } catch (e) {
       console.log({ e });
     }
@@ -58,11 +56,9 @@ export const useSingleAnime = (id: string | undefined) => {
   }
 
   useEffect(() => {
-    let isSubscribed = true;
-    fetchAnimeDetails(isSubscribed);
-    return () => {
-      isSubscribed = false;
-    };
+    const controller = new AbortController();
+    fetchAnimeDetails(controller.signal);
+    return () => controller.abort();
   }, []);
 
   return {

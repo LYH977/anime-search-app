@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import { InfoBoardProps } from '../utils/types';
 
 function InfoBoard({ infoNo, infoText }: InfoBoardProps) {
+  console.log('infoboard rerendered');
   return (
     <Box
       sx={{ bgcolor: `lightblue`, p: 3, borderRadius: 2 }}

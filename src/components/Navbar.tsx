@@ -10,6 +10,7 @@ import { ButtonBase } from '@mui/material';
 
 export default function Navbar() {
   const navigate = useNavigate();
+  console.log('navbar rerendered');
 
   return (
     <Box sx={{ flexGrow: 1 }}>

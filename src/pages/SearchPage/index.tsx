@@ -28,7 +28,7 @@ function SearchPage() {
   const navigate = useNavigate();
   const [animeName, setAnimeName] = useState<string>('');
   const [animeList, setAnimeList] = useState<AnimeItemProps[]>([]);
-  const [debouncedValue] = useDebounce(animeName, 500);
+  const [debouncedValue] = useDebounce(animeName, 100);
   const {
     currentPage,
     isPaginating,
@@ -54,6 +54,7 @@ function SearchPage() {
       justifyContent='center'
       alignItems='center'
     >
+      {console.log(1234)}
       <Snackbar
         open={isSnackbarOpen}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
