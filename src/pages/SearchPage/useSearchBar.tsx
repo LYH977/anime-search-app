@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
+import { DebouncedState } from 'use-debounce/lib/useDebouncedCallback';
 import { getAnimeList } from '../../utils/api';
 import { AnimeItemProps } from '../../utils/types';
 
 export const useSearchBar = (
-  debouncedValue: string,
+  animeName: string,
   setAnimeList: React.Dispatch<React.SetStateAction<AnimeItemProps[]>>,
-  setAnimeName: React.Dispatch<React.SetStateAction<string>>,
+  setAnimeName: DebouncedState<(name: string) => void>,
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
   setLastPage: React.Dispatch<React.SetStateAction<number>>
 ) => {
@@ -18,13 +19,13 @@ export const useSearchBar = (
     const controller = new AbortController();
     fetchAnimeList(controller.signal);
     return () => controller.abort();
-  }, [debouncedValue]);
+  }, [animeName]);
 
   async function fetchAnimeList(signal: AbortSignal) {
-    if (debouncedValue) {
+    if (animeName) {
       setIsSearching(true);
       try {
-        const result = await getAnimeList(debouncedValue, 1, signal);
+        const result = await getAnimeList(animeName, 1, signal);
         setAnimeList(result?.data?.results);
         setLastPage(result?.data?.last_page);
         setCurrentPage(1);

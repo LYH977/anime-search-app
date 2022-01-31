@@ -3,7 +3,7 @@ import { getAnimeList } from '../../utils/api';
 import { AnimeItemProps } from '../../utils/types';
 
 export const usePagination = (
-  debouncedValue: string,
+  debouncedValue: any,
   setAnimeList: React.Dispatch<React.SetStateAction<AnimeItemProps[]>>
 ) => {
   const [isPaginating, setisPaginating] = useState(false);

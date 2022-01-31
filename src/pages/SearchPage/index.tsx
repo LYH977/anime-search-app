@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useState } from 'react';
-import { useDebounce } from 'use-debounce';
+import React, { memo, useCallback, useRef, useState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import Thumbnail from '../../components/Thumbnail';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../utils/constant';
@@ -34,7 +34,11 @@ function SearchPage() {
   const navigate = useNavigate();
   const [animeName, setAnimeName] = useState<string>('');
   const [animeList, setAnimeList] = useState<AnimeItemProps[]>([]);
-  const [debouncedValue] = useDebounce(animeName, 100);
+  const debounceSetAnimeName = useRef(
+    useDebouncedCallback((name: string) => {
+      setAnimeName(name);
+    }, 500)
+  ).current;
 
   const {
     currentPage,
@@ -43,13 +47,13 @@ function SearchPage() {
     setLastPage,
     setCurrentPage,
     updatePage,
-  } = usePagination(debouncedValue, setAnimeList);
+  } = usePagination(animeName, setAnimeList);
 
   const { closeSnackBar, dismissSnackBar, isSearching, isSnackbarOpen } =
     useSearchBar(
-      debouncedValue,
+      animeName,
       setAnimeList,
-      setAnimeName,
+      debounceSetAnimeName,
       setCurrentPage,
       setLastPage
     );
@@ -82,14 +86,13 @@ function SearchPage() {
             <CloseIcon fontSize='small' />
           </IconButton>
         }
-        message={`"${debouncedValue}" is not found. Please try other anime name.`}
+        message={`"${animeName}" is not found. Please try other anime name.`}
       />
       <TextField
         sx={{ width: '80%', mb: 5 }}
         id='outlined-basic'
         label='Search'
         variant='outlined'
-        value={animeName}
         onChange={dismissSnackBar}
         InputProps={{
           endAdornment: (
@@ -103,13 +106,11 @@ function SearchPage() {
           ),
         }}
       />
-
       {animeList.length === 0 && (
         <Typography variant='overline' display='block' gutterBottom>
           --EMPTY--
         </Typography>
       )}
-
       {isPaginating ? (
         <CircularProgress />
       ) : (
@@ -123,7 +124,6 @@ function SearchPage() {
           ))}
         </Grid>
       )}
-
       {animeList.length > 0 && (
         <Pagination
           sx={{ m: 5 }}
